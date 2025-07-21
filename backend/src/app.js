@@ -1,74 +1,59 @@
 const express = require("express");
 const connectDB = require("./config/db");
+const bcrypt = require("bcrypt");
 const app = express();
 
 const User = require("./models/user")
+const { validateSignup } = require("./utils/validation")
+const { userAuth } = require("./middlewares/userAuth")
+
 app.use(express.json());
 
-// const { userAuth } = require("./middlewares/userAuth");
-
-// app.use("/", (req, res) => {
-//     res.send("Namaste Node");
-// })
-
-// app.use("/user", userAuth);
-
-// app.use("user/home", (req, res) => {
-//     res.send("Home Page");
-// })
-
-// app.use("user/about", (req, res) => {
-//     res.send("About Page");
-// })
-
-// app.use("/", (err, req, res, next) => {
-//     if(err){
-//         res.status(500).send("Something went wrong"); 
-//     }
-// })
 
 app.post("/signup", async (req,res) => {
-    // const userObj = {
-    //     firstName: "Zaid",
-    //     lastName: "Khan",
-    //     emailId: "test@example.com",
-    //     password: "password123"
-    // }
 
-    const user = new User(req.body);
-    await user.save();
-    res.send("User Added Successfully")
-});
-
-app.get("/users", async (req,res) => {
-    const userEmail = req.body.emailId;
     try {
-        const user = await User.find({emailId: userEmail});
-        res.send(user);
+        validateSignup(req)
+        const { password } = req.body;
+        const passwordHash = bcrypt.hash(password, 10);
+        const user = new User({
+            firstName, lastName, emailId, password: passwordHash
+        });
+        await user.save();
+        res.send("User Added Successfully")
     } catch (error) {
-        res.status(500).send("Something went wrong");
+        throw new Error("Error" + error.message);
     }
 });
 
-app.patch("/user/:userId", async (req, res) => {
-    const userId = req.params?.userId;
-    const data = req.body;
+app.post("/login", async (req,res) => {
     try {
-        const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
-        const isUpdateAllowed = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
-        if(!isUpdateAllowed){
-            throw new Error("Update not allowed");
+        const { emailId, password } = req.body;
+        const user = await User.findOne({ emailId: emailId });
+        if(!user){
+            throw new Error("Email Id not present");
         }
-        const user = await User.findByIdAndUpdate({ _id: userId }, data, {
-            returnDocument: "after",
-            runValidators: true,
-        })
 
-        res.send(user);
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if(!isValidPassword){
+            throw new Error("Password not correct");
+        }else{
+            res.send("Login Successful");
+        }
     } catch (error) {
-        res.status(500).send("Something went wrong");
+        res.status(400).send("Error" + error.message)
     }
 })
+
+app.get("/profile", userAuth, async (req, res) => {
+    try {
+        const user = req.user;
+        res.send(user);
+    } catch (error) {
+        res.status(400).send("ERROR" + error.message);
+    }
+})
+
 
 connectDB().then(() => {
     console.log("DataBase connection successful.")
