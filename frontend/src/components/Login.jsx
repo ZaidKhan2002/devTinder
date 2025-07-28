@@ -1,8 +1,30 @@
+import axios from 'axios';
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../utils/constants';
 
 const Login = () => {
-    const [emailId, setEmailId] = useState('');
-    const [password, setPassword] = useState('');
+    const [emailId, setEmailId] = useState('test8@example.com');
+    const [password, setPassword] = useState('Strongest1@3');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
+        e.preventDefault(); 
+        try {
+          const res = await axios.post(BASE_URL + "/login", {
+            emailId,
+            password,
+          }, { withCredentials: true });
+          console.log(res.data)
+          dispatch(addUser(res.data))
+          return navigate("/feed")
+        } catch (err) {
+          console.error("Login error:", err);
+        }
+      };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -58,10 +80,11 @@ const Login = () => {
         </div>
         {/* Submit Button */}
         <button
-          type="submit"
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-200"
-        >
-          Login
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-200"
+            onClick={handleLogin}
+            >
+            Login
         </button>
       </form>
     </div>

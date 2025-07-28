@@ -2,18 +2,42 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Body from "./components/Body"
 import Login from "./components/Login"
 import Profile from "./components/Profile"
+import { Provider } from "react-redux"
+import appStore from "./utils/appStore"
+import Feed from "./components/Feed"
+import ProtectedRoute from "./components/ProtectedRoute"
 
 function App() {
   return (
     <>
+    <Provider store={appStore}>
     <BrowserRouter basename="/">
-      <Routes>
-        <Route path="/" element={<Body/>}>
-          <Route path="/login" element={<Login/>} />
-          <Route path="/profile" element={<Profile/>} />
-        </Route>
-      </Routes>
+    <Routes>
+          <Route path="/" element={<Body />}>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            {/* Protected routes */}
+            <Route
+              path="/feed"
+              element={
+                <ProtectedRoute>
+                  <Feed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+        </Routes>
+
     </BrowserRouter>
+    </Provider>
     </>
   )
 }
