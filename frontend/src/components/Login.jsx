@@ -6,8 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../utils/constants';
 
 const Login = () => {
-    const [emailId, setEmailId] = useState('test8@example.com');
-    const [password, setPassword] = useState('Strongest1@3');
+    const [emailId, setEmailId] = useState("");
+    const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [isLoginForm, setIsLoginForm] = useState(true);
     const [error, setError] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -19,7 +22,6 @@ const Login = () => {
             emailId,
             password,
           }, { withCredentials: true });
-          console.log(res.data)
           dispatch(addUser(res.data))
           return navigate("/feed")
         } catch (err) {
@@ -28,68 +30,96 @@ const Login = () => {
         }
       };
 
+      const handleSignUp = async () => {
+        try {
+          const res = await axios.post(
+            BASE_URL + "/signup",
+            { firstName, lastName, emailId, password },
+            { withCredentials: true }
+          );
+          dispatch(addUser(res.data.data));
+          return navigate("/profile");
+        } catch (err) {
+          setError(err?.response?.data || "Something went wrong");
+        }
+      };
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-    <div className="bg-base-300 p-8 rounded-2xl shadow-xl w-full max-w-md">
-      <h1 className="text-2xl font-bold mb-6 text-center text-white">Login Page</h1>
-      <form className="space-y-5">
-        {/* Username Field */}
-        <div className="flex items-center border rounded-md px-3 py-2 ">
-            <svg   className="h-5 w-5 text-white mr-2"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-        >
-                <path d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-            </svg>
-          <input
-            type="text"
-            value={emailId}
-            placeholder="Username"
-            className="w-full outline-none bg-base-300"
-            onChange={(e) => setEmailId(e.target.value)}
-          />
+    <div className="flex justify-center my-10">
+    <div className="card bg-base-300 w-96 shadow-xl">
+      <div className="card-body">
+        <h2 className="card-title justify-center">
+          {isLoginForm ? "Login" : "Sign Up"}
+        </h2>
+        <div>
+          {!isLoginForm && (
+            <>
+              <label className="form-control w-full max-w-xs my-2">
+                <div className="label">
+                  <span className="label-text">First Name</span>
+                </div>
+                <input
+                  type="text"
+                  value={firstName}
+                  className="input input-bordered w-full max-w-xs"
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </label>
+              <label className="form-control w-full max-w-xs my-2">
+                <div className="label">
+                  <span className="label-text">Last Name</span>
+                </div>
+                <input
+                  type="text"
+                  value={lastName}
+                  className="input input-bordered w-full max-w-xs"
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </label>
+            </>
+          )}
+          <label className="form-control w-full max-w-xs my-2">
+            <div className="label">
+              <span className="label-text">Email ID:</span>
+            </div>
+            <input
+              type="text"
+              value={emailId}
+              className="input input-bordered w-full max-w-xs"
+              onChange={(e) => setEmailId(e.target.value)}
+            />
+          </label>
+          <label className="form-control w-full max-w-xs my-2">
+            <div className="label">
+              <span className="label-text">Password</span>
+            </div>
+            <input
+              type="password"
+              value={password}
+              className="input input-bordered w-full max-w-xs"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+        </div>
+        <p className="text-red-500">{error}</p>
+        <div className="card-actions justify-center m-2">
+          <button
+            className="btn btn-primary"
+            onClick={isLoginForm ? handleLogin : handleSignUp}
+          >
+            {isLoginForm ? "Login" : "Sign Up"}
+          </button>
         </div>
 
-        {/* Password Field */}
-        <div className="flex items-center border rounded-md px-3 py-2">
-            <svg className="h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <g
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-                fill="none"
-                stroke="currentColor"
-                >
-                <path
-                    d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"
-                ></path>
-                <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
-                </g>
-            </svg>
-          <input
-            type="password"
-            value={password}
-            placeholder="Password"
-            className="w-full outline-none bg-base-300"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {/* Submit Button */}
-        <p className='text-red-500'>{error}</p>
-        <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-200"
-            onClick={handleLogin}
-            >
-            Login
-        </button>
-      </form>
+        <p
+          className="m-auto cursor-pointer py-2"
+          onClick={() => setIsLoginForm((value) => !value)}
+        >
+          {isLoginForm
+            ? "New User? Signup Here"
+            : "Existing User? Login Here"}
+        </p>
+      </div>
     </div>
   </div>
   )

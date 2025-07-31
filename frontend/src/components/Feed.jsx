@@ -22,6 +22,9 @@ const Feed = () => {
     useEffect(() => {
         getFeed();
     },[])
+
+    if(!feed) return <h1>Error</h1>;
+    if(!feed.length < 0) return <h1>No users to display</h1>
   return (
     (feed && (
         <div className='flex justify-center my-10'>
