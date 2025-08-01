@@ -5,9 +5,9 @@ import { useDispatch } from 'react-redux';
 import { removeUserFromFeed } from '../utils/feedSlice';
 
 const UserCard = ({ user }) => {
-    const { _id, firstName, lastName, photoUrl, age, gender, about } = user;
     const dispatch = useDispatch();
-  
+    if (!user) return <div className="text-white text-center mt-10">No more users to show!</div>;
+    const { _id, firstName, lastName, photoUrl, age, gender, about } = user;
     const handleSendRequest = async (status, userId) => {
       try {
         const res = await axios.post(
