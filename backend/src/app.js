@@ -8,8 +8,10 @@ const userRouter = require("./routes/user");
 const cors = require("cors");
 const app = express();
 
+require('dotenv').config();
+
 app.use(cors({
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5173",
     credentials: true
 }));
 app.use(express.json());
@@ -22,7 +24,7 @@ app.use("/", userRouter);
 
 connectDB().then(() => {
     console.log("DataBase connection successful.")
-    app.listen(7000, () => {
+    app.listen(process.env.PORT, () => {
         console.log("Server is running on Port 7000");
     })
 }).catch(err => {
