@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import Connections from "./components/Connections"
 import Requests from "./components/Requests"
 import { Toaster } from 'react-hot-toast';
+import Chat from "./components/Chat"
 
 function App() {
   return (
@@ -50,6 +51,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Requests/>
+                </ProtectedRoute>
+              }
+            />
+              <Route
+              path="/chat/:targetUserId"
+              element={
+                <ProtectedRoute>
+                  <Chat/>
                 </ProtectedRoute>
               }
             />
