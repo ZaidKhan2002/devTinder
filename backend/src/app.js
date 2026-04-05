@@ -12,12 +12,13 @@ const initializeSocket = require("./utils/socket");
 const chatRouter = require("./routes/chat");
 const app = express();
 
+app.use(cookieParser());
+
 app.use(cors({
     origin: process.env.ALLOWED_ORIGIN,
     credentials: true
 }));
 app.use(express.json());
-app.use(cookieParser());
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
